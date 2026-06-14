@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD — Tech Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="parent">
+    <div class="div1">
+        <nav class="navbar" id="navbar">
+            <p class="logo" id="logo-trigger">CRUD</p>
+
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="products.html" class="nav-link" style="color:#111111; background:#f0efed;">Products</a>
+                <a href="about.html" class="nav-link">About Us</a>
+                <a href="contact.html" class="nav-link">Contact Us</a>
+            </div>
+
+            <div class="nav-icons">
+                <a href="#" aria-label="Search" id="search-trigger"><i class='bx bx-search'></i></a>
+                
+                <a href="#" aria-label="Cart" class="cart-wrap" id="cart-trigger">
+                    <i class='bx bx-cart-alt'></i>
+                    <span class="cart-badge"></span>
+                </a>
+                <a href="#" aria-label="Wishlist" class="wish-wrap" id="wishlist-trigger">
+                    <i class='bx bx-heart'></i>
+                    <span class="wishlist-badge" id="wishlist-counter">0</span> 
+                </a>
+            </div>
+        </nav>
+    </div>
+    <div class="logo-hint" id="logo-hint"></div>
+    <div class="div2">
+        <div class="sidebar">
+            <h3 class="cat">Categories</h3>
+            <ul>
+                <li class="active"><a href="#" onclick="setCategory('All')">All Products</a></li>
+                <li><a href="#" onclick="setCategory('Laptops')">Laptops</a></li>
+                <li><a href="#" onclick="setCategory('Smartphones')">Smartphones</a></li>
+                <li><a href="#" onclick="setCategory('Gaming')">Gaming</a></li>
+                <li><a href="#" onclick="setCategory('Smartwatches')">Smartwatches</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="div3">
+        <footer class="product-footer">
+            <div class="footer-bottom product">
+                <p>© 2026 CRUD. All rights reserved.</p>
+                <div class="footer-social product">
+                    <a href="#" aria-label="Instagram"><i class='bx bxl-instagram'></i></a>
+                    <a href="#" aria-label="Facebook"><i class='bx bxl-facebook'></i></a>
+                    <a href="#" aria-label="Twitter"><i class='bx bxl-twitter'></i></a>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <div class="div4">
+        <main class="main-content">
+            <div class="topbar">
+                <div class="topbar-left">
+                    <h1 id="page-heading">All Products</h1>
+                    <p id="page-sub">Browse our full collection</p>
+                </div>
+                <div class="topbar-right">
+                    <div class="search-box">
+                        <i class='bx bx-search'></i>
+                        <input type="text" id="search-input" placeholder="Search…">
+                    </div>
+                    <select class="sort-select" id="sort-select">
+                        <option value="default">Featured </option>
+                        <option value="price-asc">Price ↑</option>
+                        <option value="price-desc">Price ↓</option>
+                        <option value="rating">Top Rated</option>
+                        <option value="name">A – Z</option>
+                    </select>
+                </div>
+            </div>
+
+            <span class="result-count" id="result-count"></span>
+
+            <div class="product-grid" id="product-grid"></div>
+        </main>
+    </div>
+</div>
+
+<div class="toast" id="toast">
+    <i class='bx bx-check'></i>
+    <span id="toast-msg"></span>
+</div>
+
+<script src="cart.js"></script>
+<script src="wishlist.js"></script>
+<script>
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+        navbar.classList.toggle('scrolled', window.scrollY > 10);
+    });
+
+    // ── 5-click admin easter egg ──
+    (function () {
+        const logo = document.getElementById('logo-trigger');
+        const hint = document.getElementById('logo-hint');
+        if (!logo) return;
+        let clicks = 0, timer = null, hintTimer = null;
+        const messages = { 3: '✦ Keep going…', 4: '✦ One more…' };
+        function showHint(msg) {
+            hint.textContent = msg; hint.classList.add('show');
+            clearTimeout(hintTimer);
+            hintTimer = setTimeout(() => hint.classList.remove('show'), 1200);
+        }
+        logo.addEventListener('click', () => {
+            clicks++;
+            if (messages[clicks]) showHint(messages[clicks]);
+            if (clicks >= 5) {
+                hint.classList.remove('show');
+                clearTimeout(timer);
+                window.location.href = 'index.php';
+                return;
+            }
+            clearTimeout(timer);
+            timer = setTimeout(() => { clicks = 0; hint.classList.remove('show'); }, 3000);
+        });
+    })();
+
+    const items = document.querySelectorAll(".sidebar li");
+    items.forEach(item => {
+        item.addEventListener("click", () => {
+            document.querySelector(".sidebar .active")?.classList.remove("active");
+            item.classList.add("active");
+        });
+    });
+
+    /* ══ DATA ══ */
+    let PRODUCTS = [];
+
+    async function loadProducts() {
+        try {
+            const response = await fetch("api/products.php");
+            const rawProducts = await response.json();
+
+            // 1. Get previously saved wishlist
+            const storedWishlist = JSON.parse(localStorage.getItem("crud_store_wishlist")) || [];
+
+            // 2. Create a Set of wishlist IDs for instant lookup (much faster than .some())
+            // Convert everything to strings to ensure a perfect match
+            const wishedIds = new Set(storedWishlist.map(x => String(x.id)));
+
+            // 3. Map products with the correct 'wished' status
+            PRODUCTS = rawProducts.map(p => ({
+                ...p,
+                id: Number(p.id), // Keep internal ID as number
+                price: Number(p.price),
+                oldPrice: p.oldPrice ? Number(p.oldPrice) : null,
+                stock: Number(p.stock),
+                rating: Number(p.rating),
+                reviews: Number(p.reviews),
+                // Check against our Set using String conversion
+                wished: wishedIds.has(String(p.id)) 
+            }));
+
+            render();
+        } catch (err) {
+            console.error("Error loading products:", err);
+            document.getElementById('product-grid').innerHTML = '<p>Failed to load products.</p>';
+        }
+    }
+
+
+    let currentCat = 'All';
+    let searchQuery = '';
+    let sortMode = 'default';
+
+    function starsHTML(r) {
+        let h = '';
+        for (let i = 1; i <= 5; i++)
+            h += `<i class='bx bxs-star${i <= Math.round(r) ? "" : " empty"}'></i>`;
+        return h;
+    }
+
+    function getFiltered() {
+        let list = PRODUCTS.filter(p => {
+            const matchCat = currentCat === 'All' || p.category === currentCat;
+            const matchQ = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           p.category.toLowerCase().includes(searchQuery.toLowerCase());
+            return matchCat && matchQ;
+        });
+
+        if (sortMode === 'price-asc') list.sort((a,b) => a.price - b.price);
+        if (sortMode === 'price-desc') list.sort((a,b) => b.price - a.price);
+        if (sortMode === 'rating') list.sort((a,b) => b.rating - a.rating);
+        if (sortMode === 'name') list.sort((a,b) => a.name.localeCompare(b.name));
+
+        return list;
+    }
+
+    function setCategory(cat) {
+        currentCat = cat;
+        render();
+    }
+
+    function render() {
+        // 1. BULLETPROOF SYNC: Always read the exact truth from localStorage first
+        const storedWishlist = JSON.parse(localStorage.getItem("crud_store_wishlist")) || [];
+        const wishedIds = new Set(storedWishlist.map(x => String(x.id)));
+        
+        // Update our memory array before drawing
+        PRODUCTS.forEach(p => p.wished = wishedIds.has(String(p.id)));
+
+        // 2. Filter and prepare layout
+        const list = getFiltered();
+        document.getElementById('result-count').textContent = list.length + (list.length === 1 ? ' product' : ' products');
+        document.getElementById('page-heading').textContent = currentCat === 'All' ? 'All Products' : currentCat;
+        document.getElementById('page-sub').textContent = list.length + ' items available';
+
+        const grid = document.getElementById('product-grid');
+
+        if (!list.length) {
+            grid.innerHTML = `<div class="no-results">
+                <i class='bx bx-search-alt'></i>
+                <p>No products found.</p>
+                <small>Try a different search or category.</small>
+            </div>`;
+            return;
+        }
+
+        // 3. Draw the grid
+        grid.innerHTML = list.map(p => {
+            const badge = p.badge ? `<span class="card-badge badge-${p.badge}">${p.badge}</span>` : '';
+            const oldP  = p.oldPrice ? `<span class="card-price-old">₱${p.oldPrice.toLocaleString()}</span>` : '';
+            const wish  = `<div class="card-wish${p.wished ? ' active' : ''}" data-id="${p.id}" data-action="wish">
+                               <i class='bx ${p.wished ? "bxs-heart" : "bx-heart"}'></i>
+                           </div>`;
+            return `
+            <div class="product-card">
+                ${badge}
+                ${wish}
+                <div class="card-img">
+                    <img src="${p.img}" alt="${p.name}">
+                </div>
+                <div class="card-body">
+                    <div class="card-cat">${p.category}</div>
+                    <div class="card-name">${p.name}</div>
+                    <div class="card-stars">
+                        ${starsHTML(p.rating)}
+                        <span>(${p.reviews})</span>
+                    </div>
+                    <div class="card-footer">
+                        <div class="card-prices">
+                            <span class="card-price">₱${p.price.toLocaleString()}</span>
+                            ${oldP}
+                        </div>
+                        <button class="card-add" data-id="${p.id}" data-action="cart">
+                            <i class='bx bx-cart-add'></i>
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    let toastTimer;
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        document.getElementById('toast-msg').textContent = msg;
+        t.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+    }
+
+    /* ══ EVENTS ══ */
+    document.getElementById('search-input').addEventListener('input', e => {
+        searchQuery = e.target.value;
+        render();
+    });
+
+    document.getElementById('sort-select').addEventListener('change', e => {
+        sortMode = e.target.value;
+        render();
+    });
+
+    // On products page, the nav search icon focuses the inline search box
+    document.getElementById('search-trigger')?.addEventListener('click', e => {
+        e.preventDefault();
+        const inp = document.getElementById('search-input');
+        if (inp) { inp.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => inp.focus(), 280); }
+    });
+
+    document.getElementById('product-grid').addEventListener('click', e => {
+        const cartBtn = e.target.closest('[data-action="cart"]');
+        if (cartBtn) {
+            e.stopPropagation();
+            const p = PRODUCTS.find(x => x.id === +cartBtn.dataset.id);
+            if (!p) return;
+            
+            window.addToCart(p);
+            showToast(`${p.name} added to cart`);
+            return;
+        }
+
+        const wishBtn = e.target.closest('[data-action="wish"]');
+        if (wishBtn) {
+            e.stopPropagation();
+            const p = PRODUCTS.find(x => x.id === +wishBtn.dataset.id);
+            if (!p) return;
+            p.wished = window.wishToggle(p);
+            showToast(p.wished ? 'Saved to wishlist' : 'Removed from wishlist');
+            if (window.wishRender) window.wishRender();
+            render();
+            return;
+        }
+    });
+
+    /* ── DYNAMIC GENERATOR FOR WISHLIST DRAWERS ── */
+
+    window.toggleWishlistItem = function(id) {
+        const p = PRODUCTS.find(x => x.id === id);
+        if (p) { p.wished = false; window.wishRemove(id); showToast('Removed from wishlist'); render(); }
+    };
+
+    window.moveFromWishToCart = function(id) {
+        const p = PRODUCTS.find(x => x.id === id);
+        if (p) { window.addToCart(p); window.wishRemove(id); p.wished = false; showToast(`${p.name} moved to cart`); render(); }
+    };
+
+    /* Wishlist drawer wiring handled by wishlist.js */
+
+    loadProducts().then(() => {
+        const urlQ = new URLSearchParams(window.location.search).get('q');
+        if (urlQ) {
+            const inp = document.getElementById('search-input');
+            if (inp) { inp.value = urlQ; searchQuery = urlQ; render(); }
+        }
+    });
+</script>
+<script src="nav.js"></script>
+<div class="logo-hint" id="logo-hint"></div>
+
+<!-- ══ MOBILE BOTTOM NAV ══ -->
+<nav class="mobile-bottom-nav">
+    <a href="index.html"><i class='bx bx-home-alt'></i>Home</a>
+    <a href="products.html" class="active"><i class='bx bx-package'></i>Products</a>
+    <a href="about.html"><i class='bx bx-info-circle'></i>About</a>
+    <a href="contact.html"><i class='bx bx-envelope'></i>Contact</a>
+</nav>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us — CRUD Tech Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <style>
+        .logo-hint { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#111111; color:#ffffff; font-size:11px; font-weight:500; padding:8px 18px; border-radius:20px; letter-spacing:0.5px; opacity:0; transition:opacity 0.3s; pointer-events:none; z-index:999; }
+        .logo-hint.show { opacity:1; }
+        /* ══ NAV WISHLIST ICON & BADGE ══ */
+        .wish-wrap { position: relative; display: flex; align-items: center; }
+        .wishlist-badge {
+            position: absolute;
+            background: #111111; color: #ffffff;
+            font-size: 10px; font-weight: 600;
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            display: none; align-items: center; justify-content: center;
+        }
+
+        /* ══ WISHLIST DRAWER STRUCTURAL LAYOUT ══ */
+        .wishlist-drawer {
+            position: fixed; top: 0; right: -360px;
+            width: 360px; height: 100vh;
+            background: #ffffff; z-index: 1001;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.06);
+            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex; flex-direction: column;
+            padding: 24px;
+        }
+        .wishlist-drawer.open { right: 0; }
+
+        .wishlist-overlay {
+            position: fixed; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.25); opacity: 0; pointer-events: none;
+            z-index: 1000; transition: opacity 0.4s ease;
+        }
+        .wishlist-overlay.open { opacity: 1; pointer-events: auto; }
+
+        .wish-drawer-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #f0efed; padding-bottom: 16px; margin-bottom: 16px;
+        }
+        .wish-drawer-header h3 { font-size: 17px; font-weight: 600; color: #111; }
+        .wish-drawer-close { background: none; border: none; font-size: 24px; color: #111; cursor: pointer; }
+
+        .wish-drawer-items { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+
+        /* ══ DRAWER ITEM CARDS ══ */
+        .wish-item { display: flex; gap: 14px; align-items: center; border-bottom: 1px solid #f9f9f9; padding-bottom: 14px; }
+        .wish-item-img { width: 65px; height: 65px; border-radius: 8px; background: #f7f7f5; padding: 6px; display: flex; align-items: center; justify-content: center; }
+        .wish-item-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .wish-item-info { flex: 1; }
+        .wish-item-name { font-size: 13px; font-weight: 500; color: #111; margin-bottom: 2px; line-height: 1.3; }
+        .wish-item-price { font-size: 13px; font-weight: 600; color: #111; }
+        .wish-item-actions { display: flex; gap: 6px; }
+        .wish-action-btn { background: none; border: none; font-size: 19px; color: #888; transition: color 0.2s; cursor: pointer; }
+        .wish-action-btn.add-cart:hover { color: #111111; }
+        .wish-action-btn.remove-wish:hover { color: #e53935; }
+
+        .wish-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80%; color: #b3b3b3; text-align: center; gap: 10px; }
+        .wish-empty i { font-size: 44px; }
+        .wish-empty p { font-size: 14px; font-weight: 400; color: #666; }
+    </style>
+
+    <!-- ══ NAVBAR ══ -->
+    <nav class="navbar" id="navbar">
+        <p class="logo" id="logo-trigger">CRUD</p>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="products.html" class="nav-link">Products</a>
+            <a href="about.html" class="nav-link" style="color:#111111; background:#f0efed;">About Us</a>
+            <a href="contact.html" class="nav-link">Contact Us</a>
+        </div>
+        <div class="nav-icons">
+            <a href="#" aria-label="Search" id="search-trigger"><i class='bx bx-search'></i></a>
+            
+            <a href="#" aria-label="Cart" class="cart-wrap" id="cart-trigger">
+                <i class='bx bx-cart-alt'></i>
+                <span class="cart-badge" id="cart-counter">0</span>
+            </a>
+            
+            <a href="#" aria-label="Wishlist" class="wish-wrap" id="wishlist-trigger">
+                <i class='bx bx-heart'></i>
+                <span class="wishlist-badge" id="wishlist-counter">0</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="logo-hint" id="logo-hint"></div>
+
+    <div class="page-wrap">
+
+        <!-- ══ PAGE HEADER ══ -->
+        <div class="page-header">
+            <p class="eyebrow">Our Story</p>
+            <h1>We are <em>CRUD.</em></h1>
+            <p>Seven students. One project. A shared belief that buying tech online should be simple, honest, and actually enjoyable.</p>
+        </div>
+
+        <!-- ══ MISSION ══ -->
+        <div class="mission">
+            <span class="mission-label">Our Mission</span>
+            <p class="mission-text">"To make premium technology accessible to everyone — with honest prices, real quality, and a shopping experience that never feels complicated."</p>
+        </div>
+
+        <!-- ══ VALUES ══ -->
+        <section class="values">
+            <p class="section-eyebrow">What We Stand For</p>
+            <h2 class="section-title">Our Values</h2>
+            <div class="values-row">
+                <div class="val-card">
+                    <i class='bx bx-check-shield'></i>
+                    <h3>Quality First</h3>
+                    <p>Every product in our store passes a strict quality check. We only carry brands we'd personally recommend.</p>
+                </div>
+                <div class="val-card">
+                    <i class='bx bx-dollar-circle'></i>
+                    <h3>Fair Pricing</h3>
+                    <p>No hidden fees, no inflated markups. Great technology should be within reach for everyone.</p>
+                </div>
+                <div class="val-card">
+                    <i class='bx bx-headphone'></i>
+                    <h3>Real Support</h3>
+                    <p>Our team is here to help you find the right product and resolve any issue, quickly and honestly.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ TEAM ══ -->
+        <section class="team">
+            <p class="section-eyebrow">The People</p>
+            <h2 class="section-title">Meet the Team</h2>
+            <div class="team-row">
+
+                <div class="member-card">
+                    <div class="member-photo"><i class='bx bx-user'></i></div>
+                    <div class="member-info">
+                        <p class="member-role">Project Manager | Technical Writer</p>
+                        <p class="member-name">Brianna Basilio</p>
+                    </div>
+                </div>
+
+                <div class="member-card">
+                    <div class="member-photo"><i class='bx bx-user'></i></div>
+                    <div class="member-info">
+                        <p class="member-role">Backend Engineer | QA Tester & Performance Analyst</p>
+                        <p class="member-name">Cyrus Bayquen</p>
+                    </div>
+                </div>
+
+                <div class="member-card">
+                    <div class="member-photo"><i class='bx bx-user'></i></div>
+                    <div class="member-info">
+                        <p class="member-role">Frontend/UI Developer | Backend Engineer</p>
+                        <p class="member-name">Christian Lloyd Purificacion</p>
+                    </div>
+                </div>
+
+                <div class="member-card">
+                    <div class="member-photo"><i class='bx bx-user'></i></div>
+                    <div class="member-info">
+                        <p class="member-role">State/Data Manager</p>
+                        <p class="member-name">Matthew James Cariaga</p>
+                    </div>
+                </div>
+
+                <div class="member-card">
+                    <div class="member-photo"><i class='bx bx-user'></i></div>
+                    <div class="member-info">
+                        <p class="member-role">QA Tester & Performance Analyst | Video Producer & Editor</p>
+                        <p class="member-name">Mary Drew Caubang</p>
+                    </div>
+                </div>
+
+                <div class="member-card">
+                    <div class="member-photo"><i class='bx bx-user'></i></div>
+                    <div class="member-info">
+                        <p class="member-role">Video Producer & Editor</p>
+                        <p class="member-name">Bryant Nash Harris Lasan</p>
+                    </div>
+                </div>
+
+                <div class="member-card">
+                    <div class="member-photo"><i class='bx bx-user'></i></div>
+                    <div class="member-info">
+                        <p class="member-role">Lead Systems Architect</p>
+                        <p class="member-name">Angelo Josh Mosquera</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ══ FOOTER ══ -->
+        <footer class="footer">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <p class="footer-logo">CRUD</p>
+                    <p class="footer-tagline">Premium tech, simple shopping.</p>
+                </div>
+                <div class="footer-nav">
+                    <div class="footer-col">
+                        <p class="footer-col-title">Shop</p>
+                        <a href="#">Laptops</a>
+                        <a href="#">Smartphones</a>
+                        <a href="#">Gaming</a>
+                        <a href="#">Smartwatches</a>
+                    </div>
+                    <div class="footer-col">
+                        <p class="footer-col-title">Company</p>
+                        <a href="about.html">About Us</a>
+                        <a href="contact.html">Contact Us</a>
+                    </div>
+                    <div class="footer-col">
+                        <p class="footer-col-title">Support</p>
+                        <a href="#">Help Center</a>
+                        <a href="#">Shipping</a>
+                        <a href="#">Returns</a>
+                        <a href="#">Warranty</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 CRUD. All rights reserved.</p>
+                <div class="footer-social">
+                    <a href="#" aria-label="Instagram"><i class='bx bxl-instagram'></i></a>
+                    <a href="#" aria-label="Facebook"><i class='bx bxl-facebook'></i></a>
+                    <a href="#" aria-label="Twitter"><i class='bx bxl-twitter'></i></a>
+                </div>
+            </div>
+        </footer>
+
+    </div><!-- end page-wrap -->
+
+        <script src="cart.js"></script>
+    <script src="wishlist.js"></script>
+    <script src="nav.js"></script>
+
+    <!-- ══ MOBILE BOTTOM NAV ══ -->
+    <nav class="mobile-bottom-nav">
+        <a href="index.html"><i class='bx bx-home-alt'></i>Home</a>
+        <a href="products.html"><i class='bx bx-package'></i>Products</a>
+        <a href="about.html" class="active"><i class='bx bx-info-circle'></i>About</a>
+        <a href="contact.html"><i class='bx bx-envelope'></i>Contact</a>
+    </nav>
+</body>
+</html>

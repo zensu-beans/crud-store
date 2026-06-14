@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD — Tech Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ══ NAVBAR ══ -->
+    <nav class="navbar" id="navbar">
+        <!-- Add id="logo-trigger" to your existing logo element -->
+        <p class="logo" id="logo-trigger">CRUD</p>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link" style="color:#111111; background:#f0efed;">Home</a>
+            <a href="products.html" class="nav-link">Products</a>
+            <a href="about.html" class="nav-link">About Us</a>
+            <a href="contact.html" class="nav-link">Contact Us</a>
+        </div>
+        <div class="nav-icons">
+            <a href="#" aria-label="Search" id="search-trigger"><i class='bx bx-search'></i></a>
+            
+            <a href="#" aria-label="Cart" class="cart-wrap" id="cart-trigger">
+                <i class='bx bx-cart-alt'></i>
+                <span class="cart-badge" id="cart-counter">0</span>
+            </a>
+            
+            <a href="#" aria-label="Wishlist" class="wish-wrap" id="wishlist-trigger">
+                <i class='bx bx-heart'></i>
+                <span class="wishlist-badge" id="wishlist-counter">0</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Secret hint element (invisible until triggered) -->
+    <div class="logo-hint" id="logo-hint"></div>
+
+    <!-- ══ BANNER ══ -->
+    <section class="banner">
+        <div class="banner-left">
+            <span class="banner-eyebrow" id="banner-eyebrow">New — 2026 Lineup</span>
+            <h1 class="banner-title" id="banner-title">iPhone 17<br><em>Pro Max</em></h1>
+            <p class="banner-desc" id="banner-desc">Cosmic Orange. Intelligent. The most advanced iPhone ever crafted.</p>
+            <p class="banner-price" id="banner-price">From <strong>$999.00</strong></p>
+            <div class="banner-btns">
+                <a href="products.html" class="btn-dark">Buy Now</a>
+                <a href="#" class="btn-ghost">Learn More</a>
+            </div>
+        </div>
+        <div class="banner-right">
+            <div class="banner-img-wrap">
+                <img src="assets/haeder.png" alt="Featured Product" class="banner-img" id="banner-img">
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ TRUST BAR ══ -->
+    <div class="trust-bar">
+        <div class="trust-item"><i class='bx bx-package'></i><span>Free shipping over $50</span></div>
+        <div class="trust-divider"></div>
+        <div class="trust-item"><i class='bx bx-shield-quarter'></i><span>2-year warranty</span></div>
+        <div class="trust-divider"></div>
+        <div class="trust-item"><i class='bx bx-refresh'></i><span>30-day returns</span></div>
+        <div class="trust-divider"></div>
+        <div class="trust-item"><i class='bx bx-support'></i><span>24 / 7 support</span></div>
+    </div>
+
+    <!-- ══ CATEGORIES ══ -->
+    <section class="categories">
+        <div class="section-header">
+            <div>
+                <p class="section-eyebrow">Explore</p>
+                <h2 class="section-title">Shop by Category</h2>
+            </div>
+            <a href="#" class="view-all">View all <i class='bx bx-right-arrow-alt'></i></a>
+        </div>
+        <div class="cat-grid">
+            <div class="cat-card cat-large">
+                <a href="products.html?"><div class="cat-img-wrap"><img src="assets/macbook.jpg" alt="Laptop" class="cat-img"></div></a>
+                <div class="cat-info">
+                    <span class="cat-count">240 products</span>
+                    <h3 class="cat-name">Laptops</h3>
+                    <a href="products.html?category=laptops" class="cat-link">Shop now <i class='bx bx-right-arrow-alt'></i></a>
+                </div>
+            </div>
+            <div class="cat-card cat-medium">
+                <a href="products.html?category=smartphones"><div class="cat-img-wrap"><img src="assets/apple-iphone.jpg" alt="Smartphone" class="cat-img"></div></a>
+                <div class="cat-info">
+                    <span class="cat-count">240 products</span>
+                    <h3 class="cat-name">Smartphones</h3>
+                    <a href="products.html?category=smartphones" class="cat-link">Shop now <i class='bx bx-right-arrow-alt'></i></a>
+                </div>
+            </div>
+            <div class="cat-card cat-small">
+                <a href="products.html?category=gaming"><div class="cat-img-wrap"><img src="assets/ps5.jpg" alt="Gaming" class="cat-img"></div></a>
+                <div class="cat-info">
+                    <span class="cat-count">180 products</span>
+                    <h3 class="cat-name">Gaming</h3>
+                    <a href="products.html?category=gaming" class="cat-link">Shop now <i class='bx bx-right-arrow-alt'></i></a>
+                </div>
+            </div>
+            <div class="cat-card cat-small">
+                <a href="products.html?category=smartwatches"><div class="cat-img-wrap"><img src="assets/smartwatch.png" alt="Smartwatch" class="cat-img"></div></a>
+                <div class="cat-info">
+                    <span class="cat-count">95 products</span>
+                    <h3 class="cat-name">Smartwatches</h3>
+                    <a href="products.html?category=smartwatches" class="cat-link">Shop now <i class='bx bx-right-arrow-alt'></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ FOOTER ══ -->
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <p class="footer-logo">CRUD</p>
+                <p class="footer-tagline">Premium tech, simple shopping.</p>
+            </div>
+            <div class="footer-nav">
+                <div class="footer-col">
+                    <p class="footer-col-title">Shop</p>
+                    <a href="products.html">Laptops</a><a href="products.html?category=smartphones">Smartphones</a><a href="products.html?category=gaming">Gaming</a><a href="products.html?category=smartwatches">Smartwatches</a>
+                </div>
+                <div class="footer-col">
+                    <p class="footer-col-title">Company</p>
+                    <a href="about.html">About Us</a><a href="contact.html">Contact Us</a>
+                </div>
+                <div class="footer-col">
+                    <p class="footer-col-title">Support</p>
+                    <a href="#">Help Center</a><a href="shipping.html">Shipping</a><a href="returns.html">Returns</a><a href="warranty.html">Warranty</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 CRUD. All rights reserved.</p>
+            <div class="footer-social">
+                <a href="#" aria-label="Instagram"><i class='bx bxl-instagram'></i></a>
+                <a href="#" aria-label="Facebook"><i class='bx bxl-facebook'></i></a>
+                <a href="#" aria-label="Twitter"><i class='bx bxl-twitter'></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Load Dynamic Banner From API
+        async function loadHeroBanner() {
+            try {
+                const res = await fetch('api/banner.php');
+                const data = await res.json();
+                if (data && data.title) {
+                    document.getElementById('banner-eyebrow').textContent = data.eyebrow;
+                    document.getElementById('banner-title').innerHTML = data.title.replace(/\n/g, '<br>');
+                    document.getElementById('banner-desc').textContent = data.description;
+                    document.getElementById('banner-price').innerHTML = data.price.includes('<strong>') ? data.price : `From <strong>${data.price}</strong>`;
+                    document.getElementById('banner-img').src = data.img_path;
+                }
+            } catch (err) {
+                console.error('Failed loading hero banner:', err);
+            }
+        }
+        loadHeroBanner();
+    </script>
+    <script src="cart.js"></script>
+    <script src="wishlist.js"></script>
+    <script src="nav.js"></script>
+    <div class="logo-hint" id="logo-hint"></div>
+
+    <!-- ══ MOBILE BOTTOM NAV ══ -->
+    <nav class="mobile-bottom-nav">
+        <a href="index.html" class="active"><i class='bx bx-home-alt'></i>Home</a>
+        <a href="products.html"><i class='bx bx-package'></i>Products</a>
+        <a href="about.html"><i class='bx bx-info-circle'></i>About</a>
+        <a href="contact.html"><i class='bx bx-envelope'></i>Contact</a>
+    </nav>
+</body>
+</html>
