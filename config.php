@@ -2,7 +2,7 @@
 
 // ── Database credentials (Dynamic for Railway) ──────
 // Railway injects these automatically via environment variables
-$host = getenv('MYSQLHOST') ?: 'localhost';
+$host = getenv('MYSQLHOST') ?: 'mysql.railway.internal';
 $user = getenv('MYSQLUSER') ?: 'root';
 $pass = getenv('MYSQLPASSWORD') ?: '';
 $dbname = getenv('MYSQLDATABASE') ?: 'crud_store';
