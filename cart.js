@@ -17,10 +17,22 @@ function cartUpdateBadge() {
     });
 }
 
-/* ── Public: add a product object to cart ── */
+/* ── Updated Public: Add a product object to cart with Stock Check ── */
 window.addToCart = function (p) {
+    // Check if the source object or cached cart items track a max available stock value
+    const stockLimit = p.stock !== undefined ? p.stock : p.max_stock;
+
+    if (stockLimit <= 0) {
+        alert("Sorry, this product is out of stock!");
+        return;
+    }
+
     const existing = window.CART.find(x => x.id === p.id);
     if (existing) {
+        if (existing.quantity >= stockLimit) {
+            alert(`Cannot add more items. Only ${stockLimit} units are available in stock.`);
+            return;
+        }
         existing.quantity++;
     } else {
         window.CART.push({
@@ -30,10 +42,44 @@ window.addToCart = function (p) {
             img:      p.img || '',
             category: p.category || '',
             quantity: 1,
+            max_stock: stockLimit // Save the stock ceiling limit on the item profile
         });
     }
     cartSave();
     cartRender();
+};
+
+/* ── Checkout Processor Execution ── */
+window.processCheckout = async function() {
+    if (!window.CART || window.CART.length === 0) {
+        alert("Your cart is empty!");
+        return;
+    }
+
+    try {
+        const response = await fetch('checkout.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(window.CART)
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            alert("Checkout Successful! Your order has been placed.");
+            window.CART = []; // Wipe local storage records clean
+            cartSave();
+            window.toggleCart(false);
+            
+            // Reload window to sync up frontend counters with the database changes immediately
+            window.location.reload();
+        } else {
+            alert("Checkout Failed: " + (data.error || "Unknown Error"));
+        }
+    } catch (err) {
+        console.error("Checkout Processing Error:", err);
+        alert("An error occurred while completing your transaction.");
+    }
 };
 
 /* ── Toggle drawer ── */
