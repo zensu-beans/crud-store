@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# Install system dependencies required for PHP extensions
+# Install dependencies and mysqli extension
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
@@ -10,17 +10,18 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Enable Apache mod_rewrite (commonly needed for PHP apps)
+# Enable mod_rewrite if needed
 RUN a2enmod rewrite
 
-# Set the working directory
+# Set working directory
 WORKDIR /var/www/html
 
-# Copy your project files
+# Copy project files
 COPY . /var/www/html
 
-# Expose port 80
-EXPOSE 80
+# Copy the custom entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Start Apache (the base image handles the command, but this ensures clarity)
-CMD ["apache2-foreground"]Copied!   
+# Use the custom entrypoint
+CMD ["/usr/local/bin/docker-entrypoint.sh"]   
