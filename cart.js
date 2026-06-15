@@ -178,7 +178,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span>Total</span>
                         <span id="cart-total-price">₱0.00</span>
                     </div>
-                    <button class="btn-checkout" onclick="alert('Checkout coming soon!')">
+                    // Locate this button within the template inside cart.js:
+                    <button class="btn-checkout" onclick="window.processCheckout()">
                         <i class='bx bx-credit-card'></i> Proceed to Checkout
                     </button>
                 </div>
