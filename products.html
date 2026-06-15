@@ -236,8 +236,14 @@
             const wish  = `<div class="card-wish${p.wished ? ' active' : ''}" data-id="${p.id}" data-action="wish">
                                <i class='bx ${p.wished ? "bxs-heart" : "bx-heart"}'></i>
                            </div>`;
+            
+            // ── New Stock Level Checks ──
+            const isOutOfStock = p.stock <= 0;
+            const stockText = isOutOfStock ? 'Out of Stock' : `Stock: ${p.stock}`;
+            const stockColor = isOutOfStock ? '#e74c3c' : '#2ecc71';
+
             return `
-            <div class="product-card">
+            <div class="product-card" style="${isOutOfStock ? 'opacity: 0.85;' : ''}">
                 ${badge}
                 ${wish}
                 <div class="card-img">
@@ -246,17 +252,20 @@
                 <div class="card-body">
                     <div class="card-cat">${p.category}</div>
                     <div class="card-name">${p.name}</div>
-                    <div class="card-stars">
+                    <div class="card-stars" style="display: flex; align-items: center; width: 100%;">
                         ${starsHTML(p.rating)}
                         <span>(${p.reviews})</span>
+                        <span style="margin-left: auto; font-size: 11px; color: ${stockColor}; font-weight: 600;">
+                            ${stockText}
+                        </span>
                     </div>
                     <div class="card-footer">
                         <div class="card-prices">
                             <span class="card-price">₱${p.price.toLocaleString()}</span>
                             ${oldP}
                         </div>
-                        <button class="card-add" data-id="${p.id}" data-action="cart">
-                            <i class='bx bx-cart-add'></i>
+                        <button class="card-add" data-id="${p.id}" data-action="cart" ${isOutOfStock ? 'style="background: #b2bec3; cursor: not-allowed;"' : ''}>
+                            <i class='bx ${isOutOfStock ? "bx-block" : "bx-cart-add"}'></i>
                         </button>
                     </div>
                 </div>
@@ -297,6 +306,12 @@
             e.stopPropagation();
             const p = PRODUCTS.find(x => x.id === +cartBtn.dataset.id);
             if (!p) return;
+            
+            // ── Intercept and stop click event if product is out of stock ──
+            if (p.stock <= 0) {
+                alert("Sorry, this product is out of stock!");
+                return;
+            }
             
             window.addToCart(p);
             showToast(`${p.name} added to cart`);
