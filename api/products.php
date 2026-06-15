@@ -14,10 +14,6 @@ require_once __DIR__ . '/../config.php';
 
 $conn = db();
 
-function is_admin(): bool {
-    return !empty($_SESSION['admin_id']);
-}
-
 // ── Session check helper ──
 function is_admin(): bool {
     if (session_status() === PHP_SESSION_NONE) session_start();
